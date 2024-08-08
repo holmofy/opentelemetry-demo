@@ -1,10 +1,19 @@
-FROM maven:3.8.5-openjdk-17-slim AS MAVEN_BUILD
+# node builder
+FROM node:18-alpine as NODE_BUILD
+COPY frontend /build/
+WORKDIR /build/
+# build all dependencies for cache
+RUN npm install
+RUN npm run build
 
+# mvn builder
+FROM maven:3.8.5-openjdk-17-slim AS MAVEN_BUILD
 COPY pom.xml /build/
 WORKDIR /build/
 # build all dependencies for cache
 RUN mvn dependency:go-offline -B
 
+COPY --from=NODE_BUILD /build/build/ /build/src/resources/public/
 COPY src /build/src/
 RUN mvn install -Dmaven.test.skip=true
 
