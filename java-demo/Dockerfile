@@ -27,9 +27,10 @@ RUN apt-get update -y &&\
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-COPY --from=MAVEN_BUILD /build/target/demo-0.0.1-SNAPSHOT.jar /app/app.jar
 
 RUN curl https://repo1.maven.org/maven2/io/opentelemetry/javaagent/opentelemetry-javaagent/2.6.0/opentelemetry-javaagent-2.6.0.jar -o /app/opentelemetry-javaagent.jar
+
+COPY --from=MAVEN_BUILD /build/target/demo-0.0.1-SNAPSHOT.jar /app/app.jar
 
 EXPOSE 8080
 ENV JAVA_OPTIONS=""
