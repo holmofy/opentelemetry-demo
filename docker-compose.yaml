@@ -1,12 +1,14 @@
 services:
   java-demo:
     build:
-      context: ./demo
+      context: ./java-demo
       dockerfile: Dockerfile
     ports:
       - 8080:8080
     environment:
       SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/mysql"
+      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_PASSWORD: "passwd"
       OTEL_SERVICE_NAME: "demo-service"
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://openobserve:5080/api/default"
       OTEL_EXPORTER_OTLP_HEADERS: "Authorization=Basic cm9vdEBleGFtcGxlLmNvbTpMM0N3Y0xmc0xVS1hjZndi"
@@ -24,3 +26,5 @@ services:
 
   mysql:
     image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: "passwd"

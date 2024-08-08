@@ -22,8 +22,7 @@ public class DemoApplication {
     @Resource
     JdbcTemplate jdbcTemplate;
 
-    @Resource
-    RestClient restClient;
+    RestClient restClient = RestClient.create();
 
     @GetMapping("/")
     String hello() {
