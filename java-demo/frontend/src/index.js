@@ -2,7 +2,7 @@ import { openobserveRum } from '@openobserve/browser-rum';
 import { openobserveLogs } from '@openobserve/browser-logs';
 
 const options = {
-  clientToken: 'tokenvalue', // Get this from the Ingestion page in the OpenObserve
+  clientToken: 'rumCUkeXY1VUJCTHT7R', // Get this from the Ingestion page in the OpenObserve
   applicationId: 'web-application-id',
   site: 'localhost:5080',
   service: 'web-frontend-application',
