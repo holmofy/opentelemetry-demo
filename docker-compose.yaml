@@ -11,7 +11,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: "passwd"
       OTEL_SERVICE_NAME: "demo-service"
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://openobserve:5080/api/default"
-      OTEL_EXPORTER_OTLP_HEADERS: "Authorization=Basic cm9vdEBleGFtcGxlLmNvbTpMM0N3Y0xmc0xVS1hjZndi"
+      OTEL_EXPORTER_OTLP_HEADERS: "Authorization=Basic cm9vdEBleGFtcGxlLmNvbTpKQzlBQnV1cWw3VDRKa3RT"
 
   openobserve:
     image: public.ecr.aws/zinclabs/openobserve:latest
@@ -28,3 +28,36 @@ services:
     image: mysql:8.0.31
     environment:
       MYSQL_ROOT_PASSWORD: "passwd"
+
+  # nginx:
+  #   image: nginx:alpine3.19-otel
+  #   ports:
+  #     - 80:80
+  #   environment:
+  #     OTEL_EXPORTER_OTLP_ENDPOINT: "http://openobserve:5080/api/default"
+  #     OTEL_EXPORTER_OTLP_HEADERS: "Authorization=Basic cm9vdEBleGFtcGxlLmNvbTpKQzlBQnV1cWw3VDRKa3RT"
+  #   volumes:
+  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+
+  nginx:
+    build:
+      context: ./nginx-opentelemetry
+      dockerfile: Dockerfile
+    ports:
+      - 80:80
+      - 8000:8000
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: "openobserve:5081"
+      OTEL_EXPORTER_OTLP_HEADERS: "authorization=Basic cm9vdEBleGFtcGxlLmNvbTpKQzlBQnV1cWw3VDRKa3RT,organization=default"
+      OTEL_SERVICE_NAME: "nginx-proxy"
+    volumes:
+      - ./nginx-opentelemetry/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx-opentelemetry/otel-nginx.toml:/etc/nginx/otel-nginx.toml
+      - ./nginx-opentelemetry/log:/var/log/nginx/
+
+  vector:
+    image: timberio/vector:0.40.0-alpine
+    entrypoint: vector --config /vector.toml
+    volumes:
+      - ./vector/vector.toml:/vector.toml
+      - ./nginx-opentelemetry/log:/var/log/nginx

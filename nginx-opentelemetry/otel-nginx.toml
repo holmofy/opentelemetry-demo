@@ -1,0 +1,12 @@
+exporter = "otlp"
+processor = "batch"
+
+[exporters.otlp]
+host = "openobserve"
+port = 5081
+use_ssl = false
+
+[processors.batch]
+max_queue_size = 2048
+schedule_delay_millis = 5000
+max_export_batch_size = 512

@@ -1,3 +1,7 @@
 logging:
   pattern:
     level: trace_id=%mdc{trace_id} %5p
+  level:
+    root: info
+    web: debug
+    sql: debug

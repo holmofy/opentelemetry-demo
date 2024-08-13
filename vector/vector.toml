@@ -1,0 +1,54 @@
+# 输入 - 读取 Nginx Access Log
+[sources.nginx_access_log]
+type = "file"
+# Nginx access log 的文件路径
+include = ["/var/log/nginx/access.log"]
+# 文件滚动的处理方式
+ignore_older = 86400
+read_from = "beginning"
+
+# 解析 Nginx 日志的字段
+[transforms.parse_nginx]
+type = "remap"
+inputs = ["nginx_access_log"]
+source = '''
+    pattern = r'^(?P<remote_addr>[^ ]+) - (?P<remote_user>[^ ]+) \[(?P<time_local>[^\]]+)\] "(?P<request>[^"]+)" (?P<status>\d+) (?P<body_bytes_sent>\d+) (?P<request_time>[\d.]+) "(?P<http_referer>[^"]+)" "(?P<http_user_agent>[^"]+)" "(?P<http_x_forwarded_for>[^"]+)" (?P<trace_id>[^ ]+)$'
+
+    . = parse_regex!(.message, pattern)
+
+    # 将时间字段转换为 Timestamp 对象
+    .timestamp = parse_timestamp!(.time_local, format: "%d/%b/%Y:%H:%M:%S %z")
+    # 移除原始时间字段
+    del(.time_local)
+
+    .status = parse_int!(.status)
+    .body_bytes_sent = parse_int!(.body_bytes_sent)
+    .request_time = parse_float!(.request_time)
+    .remote_addr = ip_aton!(.remote_addr)
+'''
+
+[sinks.openobserve_nginx_access_log]
+type = "http"
+inputs = [ "parse_nginx" ]
+uri = "http://openobserve:5080/api/default/nginx_access_log/_json"
+method = "post"
+auth.strategy = "basic"
+auth.user = "root@example.com"
+auth.password = "JC9ABuuql7T4JktS"
+compression = "gzip"
+encoding.codec = "json"
+encoding.timestamp_format = "rfc3339"
+healthcheck.enabled = false
+
+# [sources.nginx_metrics]
+# type = "nginx_metrics"
+# endpoints = [ "http://nginx:8000/nginx_status" ]
+
+# [sinks.openobserve_nginx_metrics]
+# type = "prometheus_remote_write"
+# inputs = [ "nginx_metrics" ]
+# endpoint = "http://localhost:5080/api/default/prometheus/api/v1/write"
+# auth.strategy = "basic"
+# auth.user = "root@example.com"
+# auth.password = "JC9ABuuql7T4JktS"
+# healthcheck.enabled = false

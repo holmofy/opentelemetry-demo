@@ -50,6 +50,13 @@ public class DemoApplication {
         return restClient.get().uri("http://www.baidu.com").retrieve().body(String.class);
     }
 
+    @GetMapping("/err")
+    String error() {
+        RuntimeException e = new IllegalArgumentException("mock error");
+        log.error("error", e);
+        throw e;
+    }
+
     @Bean
     Filter traceFilter() {
         return new HttpFilter() {
