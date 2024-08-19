@@ -83,4 +83,6 @@ RUN mkdir -p /var/log/nginx/ && \
 STOPSIGNAL SIGQUIT
 EXPOSE 80
 
+ENV OTEL_SERVICE_NAME="nginx-proxy"
+
 CMD ["/etc/nginx/nginx", "-g", "daemon off;"]
