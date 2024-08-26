@@ -63,7 +63,7 @@ public class DemoApplication {
             @Override
             protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
                 String traceId = Span.current().getSpanContext().getTraceId();
-                response.addHeader("trace-id", traceId);
+                response.addHeader("x-trace-id", traceId);
                 super.doFilter(request, response, chain);
             }
         };
