@@ -5,10 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>测试页面</title>
     <script async src="index.js"></script>
+    <script>
+        async function req(){
+            const resp = await fetch("/");
+            const text = await resp.text();
+            const content = document.getElementById("content");
+            content.innerHTML = content.innerHTML + "<br/>" + text; 
+        }
+    </script>
 </head>
 <body>
-    <button>hello</button>
+    <button onclick="req()">hello</button>
     <a href="/hello.html">next page</a>
     <a href="/error.html">error page</a>
+    <div id="content"></div>
 </body>
 </html>

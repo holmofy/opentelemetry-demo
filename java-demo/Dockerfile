@@ -13,7 +13,7 @@ WORKDIR /build/
 # build all dependencies for cache
 RUN mvn dependency:go-offline -B
 
-COPY --from=NODE_BUILD /build/build/ /build/src/main/resources/META-INF/resources
+COPY --from=NODE_BUILD /build/build/ /build/src/main/resources/public
 COPY src /build/src/
 RUN mvn install -Dmaven.test.skip=true
 
