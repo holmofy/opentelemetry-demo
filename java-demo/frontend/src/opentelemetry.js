@@ -1,5 +1,5 @@
 import { WebTracerProvider, BatchSpanProcessor } from '@opentelemetry/sdk-trace-web';
-import { ConsoleSpanExporter, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
+// import { ConsoleSpanExporter, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { DocumentLoadInstrumentation } from '@opentelemetry/instrumentation-document-load';
 import { UserInteractionInstrumentation } from '@opentelemetry/instrumentation-user-interaction';
@@ -26,7 +26,8 @@ const tracerProvider = new WebTracerProvider({
   })
 });
 
-tracerProvider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()));
+// ConsoleSpanExporter use in debug
+// tracerProvider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()));
 tracerProvider.addSpanProcessor(new BatchSpanProcessor(new OTLPTraceExporter(traceCollectorOptions), {
   // The maximum queue size. After the size is reached spans are dropped.
   maxQueueSize: 100,
