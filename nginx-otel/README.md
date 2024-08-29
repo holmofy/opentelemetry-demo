@@ -1,0 +1,1 @@
+[opentelemetry nginx plugin](https://github.com/open-telemetry/opentelemetry-cpp-contrib/tree/main/instrumentation/nginx)
