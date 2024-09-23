@@ -44,9 +44,9 @@ services:
       OTEL_EXPORTER_OTLP_HEADERS: "authorization=Basic cm9vdEBleGFtcGxlLmNvbTpKQzlBQnV1cWw3VDRKa3RT,organization=default"
       OTEL_SERVICE_NAME: "nginx-proxy"
     volumes:
-      - ./nginx-otel/nginx.conf:/etc/nginx/nginx.conf
-      - ./nginx-otel/otel-nginx.toml:/etc/nginx/otel-nginx.toml
-      - ./nginx-otel/log:/var/log/nginx/
+      - ./nginx-otel/nginx.conf:/usr/local/nginx/conf/nginx.conf
+      - ./nginx-otel/otel-nginx.toml:/usr/local/nginx/conf/otel-nginx.toml
+      - ./nginx-otel/log:/usr/local/nginx/logs
 
   # official nginx-otel
   # nginx:

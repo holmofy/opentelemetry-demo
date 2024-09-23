@@ -10,11 +10,13 @@ RUN apk update \
 RUN wget  -qO- http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz | tar -zxf - \
   && cd nginx-${NGINX_VERSION} \
   && ./configure \
-    --prefix=/etc/nginx \
-    --sbin-path=/etc/nginx/nginx \
-    --conf-path=/etc/nginx/nginx.conf \
-    --http-log-path=/var/log/nginx/access.log \
-    --error-log-path=/var/log/nginx/error.log \
+    --prefix=/usr/local/nginx \
+    --sbin-path=/sbin/nginx \
+    --modules-path=/usr/local/nginx/modules \
+    --conf-path=/usr/local/nginx/conf/nginx.conf \
+    --http-log-path=/usr/local/nginx/logs/access.log \
+    --error-log-path=/usr/local/nginx/logs/error.log \
+    --pid-path=/usr/local/nginx/logs/nginx.pid \
     --with-pcre-jit \
     --with-http_ssl_module \
     --with-http_v2_module \
@@ -54,9 +56,9 @@ RUN git clone https://github.com/open-telemetry/opentelemetry-cpp-contrib.git \
   && mkdir build \
   && cd build \
   && cmake -DCMAKE_BUILD_TYPE=Release \
-    -DNGINX_BIN=/etc/nginx/nginx \
+    -DNGINX_BIN=/sbin/nginx \
     -DCMAKE_PREFIX_PATH=/install \
-    -DCMAKE_INSTALL_PREFIX=/etc/nginx/modules \
+    -DCMAKE_INSTALL_PREFIX=/usr/local/nginx/modules \
     -DCURL_LIBRARY=/usr/lib/libcurl.so.4 \
     .. \
   && make -j2 \
@@ -67,22 +69,21 @@ FROM alpine:3.15
 
 COPY --from=builder /etc/passwd /etc/group /etc/
 RUN true
-COPY --from=builder /etc/nginx /etc/nginx
-RUN true
-COPY --from=builder /usr/local/lib /usr/local/lib
+COPY --from=builder /usr/local/nginx /usr/local/nginx
 RUN true
 COPY --from=builder /usr/lib /usr/lib
 RUN true
+COPY --from=builder /usr/local/lib /usr/local/lib
+RUN true
+COPY --from=builder /sbin/nginx /sbin/nginx
+RUN true
 
-RUN mkdir -p /var/log/nginx/ && \
-    echo -n > /var/log/nginx/access.log && \
-    echo -n > /var/log/nginx/error.log && \
-    ln -sf /dev/stdout /var/log/nginx/access.log && \
-    ln -sf /dev/stderr /var/log/nginx/error.log
+RUN ln -sf /dev/stdout /usr/local/nginx/logs/access.log && \
+    ln -sf /dev/stderr /usr/local/nginx/logs/error.log
 
 STOPSIGNAL SIGQUIT
 EXPOSE 80
 
 ENV OTEL_SERVICE_NAME="nginx-proxy"
 
-CMD ["/etc/nginx/nginx", "-g", "daemon off;"]
+CMD ["/sbin/nginx", "-g", "daemon off;"]
