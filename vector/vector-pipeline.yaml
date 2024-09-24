@@ -1,16 +1,16 @@
 apiVersion: observability.kaasops.io/v1alpha1
 kind: VectorPipeline
 metadata:
-  name: vectorpipeline-sample
+  name: vectorpipeline-nginx-access-log
   namespace: recircle-industry-base-system
 spec:
   sources:
-    test_nginx_access_log:
+    nginx_access_log:
       type: "kubernetes_logs"
       extra_namespace_label_selector: "namespace=recircle-industry-platform-test"
       extra_label_selector: "app=recircle-platform-micro-front"
   transforms:
-    test_parse_nginx:
+    parse_nginx:
       type: "remap"
       inputs: ["test_nginx_access_log"]
       source: |
@@ -28,7 +28,7 @@ spec:
           .request_time = parse_float!(.request_time)
           .remote_addr = ip_aton!(.remote_addr)
   sinks:
-    test_openobserve_nginx_access_log:
+    openobserve_nginx_access_log:
       type: "http"
       inputs: [ "test_parse_nginx" ]
       uri: "http://openobserve.recircle-industry-platform-test:5080/api/default/nginx_access_log/_json"
