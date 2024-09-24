@@ -2,7 +2,7 @@ exporter = "otlp"
 processor = "batch"
 
 [exporters.otlp]
-host = "openobserve"
+host = "openobserve.recircle-industry-platform-test"
 port = 5081
 use_ssl = false
 

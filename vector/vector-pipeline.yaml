@@ -1,0 +1,45 @@
+apiVersion: observability.kaasops.io/v1alpha1
+kind: VectorPipeline
+metadata:
+  name: vectorpipeline-sample
+  namespace: recircle-industry-base-system
+spec:
+  sources:
+    test_nginx_access_log:
+      type: "kubernetes_logs"
+      extra_namespace_label_selector: "namespace=recircle-industry-platform-test"
+      extra_label_selector: "app=recircle-platform-micro-front"
+  transforms:
+    test_parse_nginx:
+      type: "remap"
+      inputs: ["test_nginx_access_log"]
+      source: |
+          pattern = r'^(?P<remote_addr>[^ ]+) - (?P<remote_user>[^ ]+) \[(?P<time_local>[^\]]+)\] "(?P<request>[^"]+)" (?P<status>\d+) (?P<body_bytes_sent>\d+) (?P<request_time>[\d.]+) "(?P<http_referer>[^"]+)" "(?P<http_user_agent>[^"]+)" "(?P<http_x_forwarded_for>[^"]+)" (?P<trace_id>[^ ]+)$'
+
+          . = parse_regex!(.message, pattern)
+
+          # 将时间字段转换为 Timestamp 对象
+          .timestamp = parse_timestamp!(.time_local, format: "%d/%b/%Y:%H:%M:%S %z")
+          # 移除原始时间字段
+          del(.time_local)
+
+          .status = parse_int!(.status)
+          .body_bytes_sent = parse_int!(.body_bytes_sent)
+          .request_time = parse_float!(.request_time)
+          .remote_addr = ip_aton!(.remote_addr)
+  sinks:
+    test_openobserve_nginx_access_log:
+      type: "http"
+      inputs: [ "test_parse_nginx" ]
+      uri: "http://openobserve.recircle-industry-platform-test:5080/api/default/nginx_access_log/_json"
+      method: "post"
+      auth:
+        strategy: "basic"
+        user: "root@example.com"
+        password: "Complexpass#123"
+      compression: "gzip"
+      encoding:
+        codec: "json"
+        timestamp_format: "rfc3339"
+      healthcheck:
+        enabled: false

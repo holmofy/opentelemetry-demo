@@ -32,7 +32,7 @@ services:
       MYSQL_ROOT_PASSWORD: "xudjf23adj213"
 
   nginx:
-    image: holmofy/nginx-otel:latest
+    image: 192.168.110.39/infrastructure/nginx-otel:0.0.2
     build:
       context: ./nginx-otel
       dockerfile: Dockerfile
@@ -44,8 +44,8 @@ services:
       OTEL_EXPORTER_OTLP_HEADERS: "authorization=Basic cm9vdEBleGFtcGxlLmNvbTpKQzlBQnV1cWw3VDRKa3RT,organization=default"
       OTEL_SERVICE_NAME: "nginx-proxy"
     volumes:
-      - ./nginx-otel/nginx.conf:/usr/local/nginx/conf/nginx.conf
-      - ./nginx-otel/otel-nginx.toml:/usr/local/nginx/conf/otel-nginx.toml
+      # - ./nginx-otel/nginx.conf:/usr/local/nginx/conf/nginx.conf
+      # - ./nginx-otel/otel-nginx.toml:/usr/local/nginx/conf/otel-nginx.toml
       - ./nginx-otel/log:/usr/local/nginx/logs
 
   # official nginx-otel
